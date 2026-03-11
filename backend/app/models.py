@@ -148,6 +148,7 @@ class LMPSnapshot(LMPSnapshotBase, table=True):
 
 class LMPSnapshotPublic(LMPSnapshotBase):
     id: uuid.UUID
+    created_at: datetime | None
 
 class LMPSnapshotsPublic(SQLModel):
     data: list[LMPSnapshotPublic]

@@ -10,7 +10,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "80:80"
+      - "8888:80"
       - "8090:8080"
     # Duplicate the command from compose.yml to add --api.insecure=true
     command:
@@ -63,7 +63,7 @@ services:
   backend:
     restart: "no"
     ports:
-      - "8000:8000"
+      - "8001:8000"
     build:
       context: .
       dockerfile: backend/Dockerfile
@@ -106,7 +106,7 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        - VITE_API_URL=http://localhost:8000
+        - VITE_API_URL=http://localhost:8001
         - NODE_ENV=development
 
   playwright:
