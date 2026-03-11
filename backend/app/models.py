@@ -5,7 +5,6 @@ from pydantic import EmailStr
 from sqlalchemy import DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
-
 def get_datetime_utc() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -127,3 +126,30 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+# Remember to lowercase all df columns before parsing into this
+class LMPSnapshotBase(SQLModel):
+    market: str
+    time: datetime
+    interval_start: datetime
+    interval_end: datetime
+    location: str
+    location_type: str
+    lmp: float
+    energy: float
+    congestion: float
+    loss: float
+    ghg: float | None = None
+    iso: str = "CAISO"
+
+class LMPSnapshot(LMPSnapshotBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime | None = Field(default_factory=get_datetime_utc, sa_type=DateTime(timezone=True))
+
+class LMPSnapshotPublic(LMPSnapshotBase):
+    id: uuid.UUID
+
+class LMPSnapshotsPublic(SQLModel):
+    data: list[LMPSnapshotPublic]
+    count: int
+    cached: bool
