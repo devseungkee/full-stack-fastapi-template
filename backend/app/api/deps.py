@@ -12,6 +12,8 @@ from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models import TokenPayload, User
+from app.core.redis import redis_client
+import redis.asyncio as aioredis
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -22,9 +24,12 @@ def get_db() -> Generator[Session, None, None]:
     with Session(engine) as session:
         yield session
 
+def get_redis() -> aioredis.Redis:
+    return redis_client
 
 SessionDep = Annotated[Session, Depends(get_db)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
+RedisDep = Annotated[aioredis.Redis, Depends(get_redis)] 
 
 
 def get_current_user(session: SessionDep, token: TokenDep) -> User:

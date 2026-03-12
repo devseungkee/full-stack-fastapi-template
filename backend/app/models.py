@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 
 from pydantic import EmailStr
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, UniqueConstraint, Index
 from sqlmodel import Field, Relationship, SQLModel
 
 def get_datetime_utc() -> datetime:
@@ -145,6 +145,12 @@ class LMPSnapshotBase(SQLModel):
 class LMPSnapshot(LMPSnapshotBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     created_at: datetime | None = Field(default_factory=get_datetime_utc, sa_type=DateTime(timezone=True))
+    interval_start: datetime = Field(index=True)
+    
+    __table_args__ = (
+        UniqueConstraint("iso", "market", "interval_start", "location"),
+        Index("ix_lmpsnapshot_interval_start_iso", "iso", "market", "interval_start")
+    )
 
 class LMPSnapshotPublic(LMPSnapshotBase):
     id: uuid.UUID
